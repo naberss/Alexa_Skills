@@ -19,8 +19,7 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         
         
-        let speakOutput = 'Bem vindo! Qual horário gostaria de cadastrar para lembrar de tomar o medicamento?'; 
-
+        let speakOutput = 'Bem vindo! Posso te ajudar a lembrar de tomar um medicamento. Me informe qual remédio, hora e data quer que eu cadastre?'; 
  
 
         return handlerInput.responseBuilder
@@ -41,15 +40,15 @@ const HasHoraLaunchRequestHandler = {
         const sessionAttributes = attributesManager.getSessionAttributes() || {};
 
  
-
+        const remedio = sessionAttributes.hasOwnProperty('remedio') ? sessionAttributes.remedio : 0;
         const hora = sessionAttributes.hasOwnProperty('hora') ? sessionAttributes.hora : 0;
-        const dia = sessionAttributes.hasOwnProperty('dia') ? sessionAttributes.dia : 0;
-        const mes = sessionAttributes.hasOwnProperty('mes') ? sessionAttributes.mes : 0;
+        const data = sessionAttributes.hasOwnProperty('data') ? sessionAttributes.data : 0;
+        
 
  
 
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest' && 
-            hora && dia && mes; 
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest' && remedio && 
+            hora && data; 
 
  
 
@@ -60,10 +59,10 @@ const HasHoraLaunchRequestHandler = {
 
         const attributesManager = handlerInput.attributesManager;
         const sessionAttributes = attributesManager.getSessionAttributes() || {};
+        const remedio = sessionAttributes.hasOwnProperty('remedio') ? sessionAttributes.remedio : 0;
         const hora = sessionAttributes.hasOwnProperty('hora') ? sessionAttributes.hora : 0;
-        const dia = sessionAttributes.hasOwnProperty('dia') ? sessionAttributes.dia : 0;
-        const mes = sessionAttributes.hasOwnProperty('mes') ? sessionAttributes.mes : 0;
-        const speakOutput = `Bem vindo de volta! Você será lembrado de tomar remédio ${hora} horas no dia ${dia} de ${mes} `;
+         const data = sessionAttributes.hasOwnProperty('data') ? sessionAttributes.data : 0;
+        const speakOutput = `Bem vindo de volta! Você será lembrado de tomar o remédio ${remedio} ${hora} horas no dia ${data} `;
 
  
 
@@ -82,21 +81,21 @@ const LembrarRemedioIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'LembrarRemedioIntent';
     },
     async handle(handlerInput) {
+        const remedio = handlerInput.requestEnvelope.request.intent.slots.remedio.value;
         const hora = handlerInput.requestEnvelope.request.intent.slots.hora.value;
-        const dia = handlerInput.requestEnvelope.request.intent.slots.dia.value;
-        const mes = handlerInput.requestEnvelope.request.intent.slots.mes.value;
+         const data = handlerInput.requestEnvelope.request.intent.slots.data.value;
         const attributesManager = handlerInput.attributesManager;
         
         let horaAttributes = {
+            "remedio" : remedio,
             "hora" : hora,
-            "dia" : dia,
-            "mes" : mes
+            "data" : data
         };
         
         attributesManager.setPersistentAttributes(horaAttributes);
         await attributesManager.savePersistentAttributes();
         
-        const speakOutput = `Ok! Vou te lembrar de tomar remédio ${hora} horas no dia ${dia} de ${mes} . Em que posso te ajudar mais?`;
+        const speakOutput = `Ok! Vou te lembrar de tomar o remédio ${remedio} ${hora} horas no dia ${data} .`;
 
  
 
@@ -117,14 +116,13 @@ const LoadRepeticaoInterceptor = {
         const sessionAttributes = await attributesManager.getPersistentAttributes() || {};
 
  
-
+        const remedio = sessionAttributes.hasOwnProperty('remedio') ? sessionAttributes.remedio : 0;
         const hora = sessionAttributes.hasOwnProperty('hora') ? sessionAttributes.hora : 0;
-        const dia = sessionAttributes.hasOwnProperty('dia') ? sessionAttributes.dia : 0;
-        const mes = sessionAttributes.hasOwnProperty('mes') ? sessionAttributes.mes : 0;
+        const data = sessionAttributes.hasOwnProperty('data') ? sessionAttributes.data : 0;
 
  
 
-        if (hora && dia && mes) {
+        if (remedio && hora && data) {
             attributesManager.setSessionAttributes(sessionAttributes);
         }
     }
